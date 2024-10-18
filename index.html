@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Babylon.js sample code</title>
+
+    <!-- Babylon.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+    <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+    <script src="https://cdn.babylonjs.com/recast.js"></script>
+    <script src="https://cdn.babylonjs.com/ammo.js"></script>
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/cannon.js"></script>
+    <script src="https://cdn.babylonjs.com/Oimo.js"></script>
+    <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+    <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+    <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+
+      #canvasZone {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script>
+      var canvas = document.getElementById("renderCanvas");
+
+      var startRenderLoop = function (engine, canvas) {
+        engine.runRenderLoop(function () {
+          if (sceneToRender && sceneToRender.activeCamera) {
+            sceneToRender.render();
+          }
+        });
+      };
+
+      var engine = null;
+      var scene = null;
+      var sceneToRender = null;
+      var createDefaultEngine = function () {
+        return new BABYLON.Engine(canvas, true, {
+          preserveDrawingBuffer: true,
+          stencil: true,
+          disableWebGL2Support: false,
+        });
+      };
+      const createScene = () => {
+        const scene = new BABYLON.Scene(engine);
+
+        const camera = new BABYLON.ArcRotateCamera(
+          "camera",
+          -Math.PI / 2,
+          Math.PI / 2.5,
+          3,
+          new BABYLON.Vector3(0, 0, 0)
+        );
+        camera.attachControl(canvas, true);
+        camera.wheelPrecision = 25;
+
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
+
+        const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("003.env", scene);
+
+        scene.environmentIntensity = 1.5;
+
+        scene.environmentTexture = hdrTexture;
+        var yellowMat = new BABYLON.StandardMaterial("yMat", scene);
+        yellowMat.diffuseColor = new BABYLON.Color3.FromHexString("#f2c705");
+
+        BABYLON.SceneLoader.ImportMesh("", "", "enigma_machine.glb", scene, (meshes) => {
+          meshes[0].scaling = new BABYLON.Vector3(5, 5, 5);
+          // for (let i = 0; i < meshes.length; i++) {
+          //   meshes[i].material = yellowMat;
+          // }
+        });
+        var ssaoRatio = {
+          ssaoRatio: 0.5, // Ratio of the SSAO post-process, in a lower resolution
+          combineRatio: 1.0, // Ratio of the combine post-process (combines the SSAO and the scene)
+        };
+
+        var ssao = new BABYLON.SSAORenderingPipeline("ssao", scene, ssaoRatio);
+        ssao.fallOff = 0.000001;
+        ssao.area = 1;
+        ssao.radius = 0.0001;
+        ssao.totalStrength = 1.0;
+        ssao.base = 0.5;
+
+        // Attach camera to the SSAO render pipeline
+        scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
+
+        var isAttached = true;
+        window.addEventListener("keydown", function (evt) {
+          // draw SSAO with scene when pressed "1"
+          if (evt.keyCode === 49) {
+            if (!isAttached) {
+              isAttached = true;
+              scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
+            }
+            scene.postProcessRenderPipelineManager.enableEffectInPipeline(
+              "ssao",
+              ssao.SSAOCombineRenderEffect,
+              camera
+            );
+          }
+          // draw without SSAO when pressed "2"
+          else if (evt.keyCode === 50) {
+            isAttached = false;
+            scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline("ssao", camera);
+          }
+          // draw only SSAO when pressed "2"
+          else if (evt.keyCode === 51) {
+            if (!isAttached) {
+              isAttached = true;
+              scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
+            }
+            scene.postProcessRenderPipelineManager.disableEffectInPipeline(
+              "ssao",
+              ssao.SSAOCombineRenderEffect,
+              camera
+            );
+          }
+        });
+
+        return scene;
+      };
+      window.initFunction = async function () {
+        var asyncEngineCreation = async function () {
+          try {
+            return createDefaultEngine();
+          } catch (e) {
+            console.log(
+              "the available createEngine function failed. Creating the default engine instead"
+            );
+            return createDefaultEngine();
+          }
+        };
+
+        window.engine = await asyncEngineCreation();
+        if (!engine) throw "engine should not be null.";
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();
+      };
+      initFunction().then(() => {
+        sceneToRender = scene;
+      });
+
+      // Resize
+      window.addEventListener("resize", function () {
+        engine.resize();
+      });
+    </script>
+  </body>
+</html>
