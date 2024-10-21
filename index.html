@@ -43,11 +43,32 @@
         width: 100%;
         height: 100%;
       }
+
+      #guiTxt1 {
+        width: 20vw;
+        height: 20vh;
+        position: absolute;
+        top: 10vh;
+        left: 50vw;
+        background-color: #4f4f4e9a;
+        border: solid #cfcfcf 5px;
+        padding: 2rem;
+        font-size: large;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #cfcfcf;
+        border-radius: 5rem;
+      }
     </style>
   </head>
 
   <body>
     <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <div id="guiTxt1">
+      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit eius iste, debitis voluptatum
+      possimus iusto invento ipsam voluptas sapiente explicabo sequi reprehenderit corporis.
+    </div>
     <script>
       var canvas = document.getElementById("renderCanvas");
 
@@ -93,8 +114,93 @@
         var yellowMat = new BABYLON.StandardMaterial("yMat", scene);
         yellowMat.diffuseColor = new BABYLON.Color3.FromHexString("#f2c705");
 
+        var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+        var rect1 = new BABYLON.GUI.Rectangle();
+        // rect1.width = 0.07;
+        // rect1.height = 0.05;
+        // rect1.cornerRadius = 40;
+        // rect1.color = "#cfcfcf";
+        // rect1.thickness = 4;
+        // rect1.background = "#4f4f4e";
+        // advancedTexture.addControl(rect1);
+        // rect1.alpha = 0.5;
+        rect1.width = 0.3;
+        rect1.height = "80px";
+        rect1.cornerRadius = 20;
+        rect1.color = "#cfcfcf";
+        rect1.thickness = 4;
+        rect1.background = "#4f4f4e";
+        rect1.alpha = 0;
+        advancedTexture.addControl(rect1);
+
+        rect1.linkOffsetY = -150;
+        rect1.linkOffsetX = 150;
+
+        rect1.addControl(label);
+        let text1 = document.getElementById("guiTxt1");
+        text1.style.display = "none";
+
+        var label = new BABYLON.GUI.TextBlock();
+        label.text = "Part bla bla bla";
+        rect1.addControl(label);
+
+        var target = new BABYLON.GUI.Ellipse();
+        target.width = "40px";
+        target.height = "40px";
+        target.color = "#cfcfcf";
+        target.thickness = 4;
+        target.background = "#4f4f4e";
+        target.alpha = 0.5;
+
+        advancedTexture.addControl(target);
+
+        var line = new BABYLON.GUI.Line();
+        line.lineWidth = 4;
+        line.color = "#cfcfcf";
+        line.y2 = 40;
+        line.linkOffsetY = -20;
+        line.alpha = 0;
+
+        advancedTexture.addControl(line);
+
+        line.connectedControl = rect1;
+
+        // target.onPointerClickObservable.add(() => {
+        //   console.log(text1.style.display);
+        //   if (text1.style.display == "none") {
+        //     text1.style.display = "flex";
+        //   } else {
+        //     text1.style.display = "none";
+        //   }
+        // });
+        let br = 1;
+        target.onPointerClickObservable.add(() => {
+          if (br == 1) {
+            rect1.alpha = 0.5;
+            line.alpha = 0.5;
+            br = 0;
+          } else {
+            rect1.alpha = 0;
+            line.alpha = 0;
+            br = 1;
+          }
+        });
+
+        // rect1.linkOffsetY = -50;
+
         BABYLON.SceneLoader.ImportMesh("", "", "untitled1.glb", scene, (meshes) => {
           meshes[0].scaling = new BABYLON.Vector3(5, 5, 5);
+
+          target.linkWithMesh(meshes[1]);
+
+          line.linkWithMesh(meshes[1]);
+          rect1.linkWithMesh(meshes[1]);
+
+          // line.linkWithMesh(sphere);
+          // rect1.linkWithMesh(sphere);
+
+          console.log(meshes);
           // for (let i = 0; i < meshes.length; i++) {
           //   meshes[i].material = yellowMat;
           // }
