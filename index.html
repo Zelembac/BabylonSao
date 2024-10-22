@@ -104,11 +104,12 @@
         camera.attachControl(canvas, true);
         camera.wheelDeltaPercentage = 0.01;
 
-        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
+        // const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
+        // light.intensity = 2.5;
 
-        const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("003.env", scene);
+        const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("environment.env", scene);
 
-        scene.environmentIntensity = 0.5;
+        scene.environmentIntensity = 1;
 
         scene.environmentTexture = hdrTexture;
         var yellowMat = new BABYLON.StandardMaterial("yMat", scene);
@@ -125,8 +126,8 @@
         // rect1.background = "#4f4f4e";
         // advancedTexture.addControl(rect1);
         // rect1.alpha = 0.5;
-        rect1.width = 0.3;
-        rect1.height = "80px";
+        rect1.width = 0.2;
+        rect1.height = 0.2;
         rect1.cornerRadius = 20;
         rect1.color = "#cfcfcf";
         rect1.thickness = 4;
@@ -134,8 +135,8 @@
         rect1.alpha = 0;
         advancedTexture.addControl(rect1);
 
-        rect1.linkOffsetY = -150;
-        rect1.linkOffsetX = 150;
+        rect1.linkOffsetY = -250;
+        rect1.linkOffsetX = 350;
 
         rect1.addControl(label);
         let text1 = document.getElementById("guiTxt1");
@@ -156,9 +157,9 @@
         advancedTexture.addControl(target);
 
         var line = new BABYLON.GUI.Line();
-        line.lineWidth = 4;
+        line.lineWidth = 2;
         line.color = "#cfcfcf";
-        line.y2 = 40;
+        line.y2 = 100;
         line.linkOffsetY = -20;
         line.alpha = 0;
 
@@ -205,53 +206,29 @@
           //   meshes[i].material = yellowMat;
           // }
         });
-        // var ssaoRatio = {
-        //   ssaoRatio: 0.5, // Ratio of the SSAO post-process, in a lower resolution
-        //   combineRatio: 1.0, // Ratio of the combine post-process (combines the SSAO and the scene)
-        // };
+        var ssaoRatio = {
+          ssaoRatio: 0.5,
+          blurRatio: 1,
+        }; // Ratio of the SSAO post-process, in a lower resolution
 
-        // var ssao = new BABYLON.SSAO2RenderingPipeline("ssao", scene, ssaoRatio);
-        // ssao.fallOff = 0.000001;
-        // ssao.area = 1;
-        // ssao.radius = 0.0001;
-        // ssao.totalStrength = 1.0;
-        // ssao.base = 0.5;
+        var ssao = new BABYLON.SSAO2RenderingPipeline("ssao2", scene, ssaoRatio, [camera]);
+        ssao.totalStrength = 1.6;
+        ssao.base = 0;
+        ssao.radius = 1;
+        ssao.epsilon = 0.01;
+        ssao.samples = 30;
+        console.log(ssao);
+        scene.prePassRenderer.samples = 30;
+
+        let defaultRendering = new BABYLON.DefaultRenderingPipeline("defRend", true, scene);
+
+        defaultRendering.fxaaEnabled = true;
+        defaultRendering.samples = 8;
+
+        console.log(defaultRendering);
 
         // // Attach camera to the SSAO render pipeline
         // scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
-
-        var isAttached = true;
-        window.addEventListener("keydown", function (evt) {
-          // draw SSAO with scene when pressed "1"
-          if (evt.keyCode === 49) {
-            if (!isAttached) {
-              isAttached = true;
-              scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
-            }
-            scene.postProcessRenderPipelineManager.enableEffectInPipeline(
-              "ssao",
-              ssao.SSAO2CombineRenderEffect,
-              camera
-            );
-          }
-          // draw without SSAO when pressed "2"
-          else if (evt.keyCode === 50) {
-            isAttached = false;
-            scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline("ssao", camera);
-          }
-          // draw only SSAO when pressed "2"
-          else if (evt.keyCode === 51) {
-            if (!isAttached) {
-              isAttached = true;
-              scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
-            }
-            scene.postProcessRenderPipelineManager.disableEffectInPipeline(
-              "ssao",
-              ssao.SSAO2CombineRenderEffect,
-              camera
-            );
-          }
-        });
 
         return scene;
       };
