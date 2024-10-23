@@ -60,6 +60,23 @@
         color: #cfcfcf;
         border-radius: 5rem;
       }
+
+      #cameraBtn {
+        width: 6vw;
+        height: 10vh;
+        position: absolute;
+        top: 5vh;
+        left: 5vw;
+        background-color: #4f4f4e9a;
+        border: solid #cfcfcf 5px;
+        padding: 2rem;
+        font-size: large;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cfcfcf;
+        border-radius: 5rem;
+      }
     </style>
   </head>
 
@@ -69,6 +86,14 @@
       Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit eius iste, debitis voluptatum
       possimus iusto invento ipsam voluptas sapiente explicabo sequi reprehenderit corporis.
     </div>
+    <button id="cameraBtn">
+      <img
+        width="50"
+        height="50"
+        src="https://img.icons8.com/ios-filled/50/camera--v3.png"
+        alt="camera--v3"
+      />
+    </button>
     <script>
       var canvas = document.getElementById("renderCanvas");
 
@@ -94,9 +119,69 @@
         const scene = new BABYLON.Scene(engine);
         // scene.debugLayer.show();
 
-        const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3);
+        const camera = new BABYLON.ArcRotateCamera(
+          "camera",
+          -Math.PI / 2,
+          Math.PI / 2.5,
+          3,
+          BABYLON.Vector3.Zero()
+        );
         camera.attachControl(canvas, true);
         camera.wheelDeltaPercentage = 0.01;
+        camera.position = new BABYLON.Vector3(
+          13.936743185822806,
+          1.893660972640308,
+          -0.06474036605483463
+        );
+        scene.activeCamera.panningSensibility = 300;
+
+        const cameraStartP = new BABYLON.Animation(
+          "cameraStart",
+          "position",
+          60,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+
+        let keyFramesP = [];
+
+        const cameraStartT = new BABYLON.Animation(
+          "cameraStart",
+          "target",
+          60,
+          BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+
+        let keyFramesT = [];
+
+        scene.onBeforeRenderObservable.add(() => {
+          keyFramesT = [];
+
+          keyFramesT.push({
+            frame: 0,
+            value: new BABYLON.Vector3(camera.target.x, camera.target.y, camera.target.z),
+          });
+          keyFramesT.push({
+            frame: 60,
+            value: new BABYLON.Vector3(0, 0, 0),
+          });
+          cameraStartT.setKeys(keyFramesT);
+          camera.animations.push(cameraStartT);
+
+          keyFramesP = [];
+
+          keyFramesP.push({
+            frame: 0,
+            value: new BABYLON.Vector3(camera.position.x, camera.position.y, camera.position.z),
+          });
+          keyFramesP.push({
+            frame: 60,
+            value: new BABYLON.Vector3(13.936743185822806, 1.893660972640308, -0.06474036605483463),
+          });
+          cameraStartP.setKeys(keyFramesP);
+          camera.animations.push(cameraStartP);
+        });
 
         // const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
         // light.intensity = 2.5;
@@ -110,6 +195,12 @@
         yellowMat.diffuseColor = new BABYLON.Color3.FromHexString("#f2c705");
 
         var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        document.getElementById("cameraBtn").addEventListener("click", function () {
+          scene.beginDirectAnimation(camera, [cameraStartP, cameraStartT], 0, 60, false);
+          // console.log(camera._currentTarget);
+          // camera.target = new BABYLON.Vector3(0, 0, 0);
+          // console.log(camera._currentTarget);
+        });
 
         var rect1 = new BABYLON.GUI.Rectangle();
         // rect1.width = 0.07;
