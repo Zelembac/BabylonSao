@@ -210,9 +210,9 @@
         ssao.base = 0;
         ssao.radius = 1;
         ssao.epsilon = 0.01;
-        ssao.samples = 30;
+        ssao.samples = 12;
         console.log(ssao);
-        scene.prePassRenderer.samples = 30;
+        scene.prePassRenderer.samples = 12;
 
         let defaultRendering = new BABYLON.DefaultRenderingPipeline("defRend", true, scene);
 
