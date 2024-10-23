@@ -92,15 +92,9 @@
       };
       const createScene = () => {
         const scene = new BABYLON.Scene(engine);
-        scene.debugLayer.show();
+        // scene.debugLayer.show();
 
-        const camera = new BABYLON.ArcRotateCamera(
-          "camera",
-          -Math.PI / 2,
-          Math.PI / 2.5,
-          3,
-          new BABYLON.Vector3(0, 0, 0)
-        );
+        const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3);
         camera.attachControl(canvas, true);
         camera.wheelDeltaPercentage = 0.01;
 
