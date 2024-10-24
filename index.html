@@ -89,17 +89,19 @@
       #desTextBox {
         height: 70%;
         width: 100%;
-        padding: 2%;
+        padding: 5%;
         display: flex;
-        align-items: flex-start;
-        justify-content: center;
+        align-items: center;
+        justify-content: flex-start;
+        flex-direction: column;
+        overflow-y: scroll;
       }
 
       #cameraBtn {
         width: 6rem;
         height: 6rem;
         position: absolute;
-        top: 15vh;
+        top: 90vh;
         left: 5vw;
         background-color: #fc3;
         border: solid #cfcfcf 5px;
@@ -178,17 +180,27 @@
     </header>
     <div id="desBox">
       <div id="desVideoBox">
-        <img
-          width="100"
-          height="100"
-          src="https://img.icons8.com/ios/100/video--v1.png"
-          alt="video--v1"
-        />
+        <video width="100%" height="100%" controls>
+          <source src="part.mp4" type="video/mp4" />
+
+          Your browser does not support the video tag.
+        </video>
       </div>
       <div id="desTextBox">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, quisquam quos? Ipsum, ab
-        eum molestiae unde illum dolores aut. Ullam at expedita adipisci cumque magni deleniti totam
-        autem nostrum quis.
+        <h2>Title</h2>
+        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Porro eum veritatis delectus,
+        dolor alias recusandae dicta nesciunt placeat cupiditate non sit mollitia voluptates,
+        aspernatur illum quidem praesentium ex animi aliquam. Magni eum perferendis labore
+        praesentium magnam, cupiditate doloremque. Officia molestiae assumenda quaerat adipisci
+        similique non corrupti quo, doloribus optio culpa corporis. Minus tempore ea vero tempora
+        perferendis itaque, dolores repellendus. Nisi, hic omnis! Iusto, dignissimos. Ad voluptate
+        natus consequatur a. Repellendus, aspernatur. Eos similique voluptates nulla laborum illum.
+        Voluptates animi ullam cumque quisquam error? Est provident tempore doloribus ut fuga!
+        Veniam, sit sapiente alias non pariatur quis nobis deleniti quia, vero corrupti aliquid
+        repellat dolorem obcaecati sunt eveniet quos consequatur molestiae dolore cumque ipsam,
+        corporis maiores ex dolores a. Excepturi? In voluptates sint quasi beatae, incidunt esse
+        corporis voluptatum consequuntur accusamus. Ullam repellendus fugit harum et impedit quidem
+        inventore expedita facilis! Illo ipsa suscipit eius voluptates laborum architecto ab vel?
       </div>
     </div>
     <button id="cameraBtn">
@@ -400,9 +412,9 @@
         ssao.base = 0;
         ssao.radius = 1;
         ssao.epsilon = 0.01;
-        ssao.samples = 12;
+        ssao.samples = 25;
         console.log(ssao);
-        scene.prePassRenderer.samples = 12;
+        scene.prePassRenderer.samples = 25;
 
         let defaultRendering = new BABYLON.DefaultRenderingPipeline("defRend", true, scene);
 
