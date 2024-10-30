@@ -202,33 +202,35 @@ const createScene = () => {
 
   // rect1.linkOffsetY = -50;
 
-  // let animationGroup;
-  let animationGroupsA;
+  let animationGroup;
 
   document.getElementById("playBtn").addEventListener("click", function () {
     console.log("ovde");
-    // for (let i = 0; i < animationGroupsA.length; i++) {
-    //   if (animationGroupsA[i].name.indexOf("Rotation") != -1) {
-    //     animationGroupsA[i].stop();
-    //   }
-    // }
+
+    // animationGroupA.stop();
+    for (let i = 0; i < animationGroup.length; i++) {
+      if (animationGroup[i].name.indexOf("Rotation") != -1) {
+        animationGroup[i].stop();
+      }
+    }
+
     if (opened) {
       console.log("11");
-      console.log(animationGroup1);
+
       // animationGroups[0].stop();
-      if (animationGroup1.isStarted) {
-        let masterFrame = animationGroup1.animatables[0].masterFrame;
+      if (animationGroupS.isStarted) {
+        let masterFrame = animationGroupS.animatables[0].masterFrame;
         scene.beginDirectAnimation(camera, [cameraStartP], 1, 120, false);
 
-        animationGroup1.stop();
+        animationGroupS.stop();
 
-        animationGroup1.start(false, 1, masterFrame, 1);
+        animationGroupS.start(false, 1, masterFrame, 1);
       } else {
         scene.beginDirectAnimation(camera, [cameraStartP], 1, 120, false);
 
-        animationGroup1.stop();
+        animationGroupS.stop();
 
-        animationGroup1.start(false, 1, animationGroup1.to, 1);
+        animationGroupS.start(false, 1, animationGroupS.to, 1);
       }
 
       // animationGroups[0].play();
@@ -236,24 +238,23 @@ const createScene = () => {
       opened = false;
     } else {
       console.log("21");
-      console.log(animationGroup1);
 
       console.log(opened);
       // animationGroups[0].play();
 
-      if (animationGroup1.isStarted) {
-        let masterFrame = animationGroup1.animatables[0].masterFrame;
+      if (animationGroupS.isStarted) {
+        let masterFrame = animationGroupS.animatables[0].masterFrame;
         scene.beginDirectAnimation(camera, [cameraPA], 1, 120, false);
 
-        animationGroup1.stop();
+        animationGroupS.stop();
 
-        animationGroup1.start(false, 1, masterFrame, animationGroup1.to);
+        animationGroupS.start(false, 1, masterFrame, animationGroupS.to);
       } else {
         scene.beginDirectAnimation(camera, [cameraPA], 1, 120, false);
 
-        animationGroup1.stop();
+        animationGroupS.stop();
 
-        animationGroup1.start(false, 1, 1, animationGroup1.to);
+        animationGroupS.start(false, 1, 1, animationGroupS.to);
       }
       opened = true;
     }
@@ -265,15 +266,18 @@ const createScene = () => {
     //   horn.play();
     // }
   });
-  let animationGroup1 = new BABYLON.AnimationGroup("Group1");
+  let animationGroupS = new BABYLON.AnimationGroup("GroupS");
+  let animationGroupA = new BABYLON.AnimationGroup("GroupA");
 
   BABYLON.SceneLoader.ImportMesh(
     "",
     "",
-    "TaycanGearRotation.glb",
+    "TaycanGearRotation1.glb",
     scene,
     (meshes, particleSystem, skeleton, animationGroups) => {
       meshes[0].scaling = new BABYLON.Vector3(5, 5, 5);
+
+      animationGroup = animationGroups;
 
       // let { min, max } = meshes[0].getHierarchyBoundingVectors();
 
@@ -282,42 +286,68 @@ const createScene = () => {
       // meshes[0].showBoundingBox = true;
       for (let i = 0; i < animationGroups.length; i++) {
         if (animationGroups[i].name.indexOf("Rotation") != -1) {
-          // animationGroups[i].start(true, 1, 1, animationGroups[i].to);
+          animationGroups[i].start(true, 1, 1, animationGroups[i].to);
+
+          // animationGroupA.addTargetedAnimation(
+          //   animationGroups[i].targetedAnimations[0].animation,
+          //   animationGroups[i].targetedAnimations[0].target
+          // );
+          // animationGroupA.normalize(0, 120);
+          // animationGroupA.start(true, 1, 1, animationGroupA.to);
         } else {
-          animationGroup1.addTargetedAnimation(
+          animationGroupS.addTargetedAnimation(
             animationGroups[i].targetedAnimations[0].animation,
             animationGroups[i].targetedAnimations[0].target
           );
         }
       }
-      animationGroup1.normalize(0, 180);
+      // animationGroupA.normalize(0, 120);
+      animationGroupS.normalize(0, 180);
 
-      console.log(animationGroups);
+      console.log(animationGroupA);
 
       target.linkWithMesh(meshes[1]);
+      // animationGroupA.stop();
+      // animationGroupS.stop();
       animationGroups[0].stop();
 
       // line.linkWithMesh(meshes[1]);
 
       // animationGroup = animationGroups[0];
-      animationGroupsA = animationGroups;
+
       // rect1.linkWithMesh(meshes[1]);
 
       // line.linkWithMesh(sphere);
       // rect1.linkWithMesh(sphere);
 
-      console.log(animationGroups);
       // for (let i = 0; i < meshes.length; i++) {
       //   meshes[i].material = yellowMat;
       // }
       scene.onPointerObservable.add((pointerInfo) => {
-        if (!animationGroups[0].isStarted && !opened && !animationGroups[1].isStarted) {
-          // for (let i = 0; i < animationGroups.length; i++) {
-          //   if (animationGroups[i].name.indexOf("Rotation") != -1) {
-          //     animationGroups[i].start(true, 1, 1, animationGroups[i].to);
-          //   }
-          // }
+        if (!animationGroups[1].isStarted && !opened && !animationGroupS.isStarted) {
+          for (let i = 0; i < animationGroups.length; i++) {
+            if (animationGroups[i].name.indexOf("Rotation") != -1) {
+              animationGroups[i].start(true, 1, 1, animationGroups[i].to);
+            }
+          }
         }
+        // if (!animationGroupA.isStarted && !opened && !animationGroupS.isStarted) {
+        //   // for (let i = 0; i < animationGroups.length; i++) {
+        //   //   if (animationGroups[i].name.indexOf("Rotation") != -1) {
+        //   console.log("kuj djavo");
+        //   animationGroupA.start(true, 1, 1, animationGroupA.to);
+        //   //   }
+        //   // }
+        // }
+        // Only trigger on pointer move
+        // if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE) {
+        //   // Check if animation is not playing at all
+        //   if (!animationGroupA.isPlaying && !opened && !animationGroupS.isStarted) {
+        //     console.log("Starting looped rotation animation");
+        //     // Set loop to true and speedRatio to control animation speed if needed
+        //     animationGroupA.start(true, 1, 0, animationGroupA.to);
+        //   }
+        // }
         // if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERPICK) {
         // document.getElementById("playBtn").addEventListener("click", function () {
         //   console.log("ovde");
