@@ -205,8 +205,6 @@ const createScene = () => {
   let animationGroup;
 
   document.getElementById("playBtn").addEventListener("click", function () {
-    console.log("ovde");
-
     // animationGroupA.stop();
     for (let i = 0; i < animationGroup.length; i++) {
       if (animationGroup[i].name.indexOf("Rotation") != -1) {
@@ -215,8 +213,6 @@ const createScene = () => {
     }
 
     if (opened) {
-      console.log("11");
-
       // animationGroups[0].stop();
       if (animationGroupS.isStarted) {
         let masterFrame = animationGroupS.animatables[0].masterFrame;
@@ -237,9 +233,6 @@ const createScene = () => {
 
       opened = false;
     } else {
-      console.log("21");
-
-      console.log(opened);
       // animationGroups[0].play();
 
       if (animationGroupS.isStarted) {
@@ -272,7 +265,7 @@ const createScene = () => {
   BABYLON.SceneLoader.ImportMesh(
     "",
     "",
-    "TaycanGearRotation1.glb",
+    "TaycanGearRotation2.glb",
     scene,
     (meshes, particleSystem, skeleton, animationGroups) => {
       meshes[0].scaling = new BABYLON.Vector3(5, 5, 5);
