@@ -33,7 +33,19 @@ const createScene = () => {
   camera.attachControl(canvas, true);
   camera.wheelDeltaPercentage = 0.01;
   camera.position = new BABYLON.Vector3(0.19522278690950212, 0.32460103474098906, 2.34558162546303);
-  scene.activeCamera.panningSensibility = 800;
+  scene.activeCamera.panningSensibility = 3000;
+  camera.pinchPrecision = 100;
+  camera.minZ = 0;
+
+  const meshAlpha = new BABYLON.Animation(
+    "meshAlpha",
+    "visibility",
+    60,
+    BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+  );
+
+  let keyFramesMA = [];
 
   const cameraStartP = new BABYLON.Animation(
     "cameraStart",
@@ -66,6 +78,19 @@ const createScene = () => {
   let keyFramesT = [];
 
   scene.onBeforeRenderObservable.add(() => {
+    keyFramesMA = [];
+
+    keyFramesMA.push({
+      frame: 0,
+      value: 1,
+    });
+    keyFramesMA.push({
+      frame: 60,
+      value: 0,
+    });
+    meshAlpha.setKeys(keyFramesMA);
+    camera.animations.push(meshAlpha);
+
     keyFramesT = [];
 
     keyFramesT.push({
@@ -175,15 +200,23 @@ const createScene = () => {
   // line.connectedControl = rect1;
   let desBox = document.getElementById("desBox");
   desBox.style.left = "100vw";
+
   // desBox.style.display = "none";
+  // let canvasZone = document.getElementById("renderCanvas");
+  // canvasZone.style.width = "100%";
 
   target.onPointerClickObservable.add(() => {
+    desBox.style.visibility = "visible";
     console.log(desBox.style.left);
     if (desBox.style.left == "100vw") {
       // desBox.style.display = "flex";
       desBox.style.left = "80vw";
+      // canvasZone.style.width = "80%";
+      // engine.resize();
     } else {
+      // canvasZone.style.width = "100%";
       desBox.style.left = "100vw";
+      // engine.resize();
       // desBox.style.display = "none";
     }
   });
@@ -203,12 +236,20 @@ const createScene = () => {
   // rect1.linkOffsetY = -50;
 
   let animationGroup;
+  let meshe;
 
-  document.getElementById("playBtn").addEventListener("click", function () {
+  document.getElementById("openBtn").addEventListener("click", function () {
     // animationGroupA.stop();
     for (let i = 0; i < animationGroup.length; i++) {
       if (animationGroup[i].name.indexOf("Rotation") != -1) {
         animationGroup[i].stop();
+      }
+    }
+    for (let i = 0; i < meshe.length; i++) {
+      if (meshe[i].name.indexOf("Mesh_1_primitive") != -1) {
+        if (meshe[i].visibility == 0) {
+          scene.beginDirectAnimation(meshe[i], [meshAlpha], 60, 1, false);
+        }
       }
     }
 
@@ -259,6 +300,31 @@ const createScene = () => {
     //   horn.play();
     // }
   });
+
+  document.getElementById("playBtn").addEventListener("click", function () {
+    if (!opened) {
+      for (let i = 0; i < meshe.length; i++) {
+        if (meshe[i].name.indexOf("Mesh_1_primitive") != -1) {
+          if (meshe[i].visibility != 0) {
+            scene.beginDirectAnimation(meshe[i], [meshAlpha], 1, 60, false);
+          } else {
+            scene.beginDirectAnimation(meshe[i], [meshAlpha], 60, 1, false);
+          }
+        }
+      }
+
+      for (let i = 0; i < animationGroup.length; i++) {
+        if (animationGroup[i].name.indexOf("Rotation") != -1) {
+          if (animationGroup[i].isStarted) {
+            animationGroup[i].stop();
+          } else {
+            animationGroup[i].start(true, 1, 1, animationGroup[i].to);
+          }
+        }
+      }
+    }
+  });
+
   let animationGroupS = new BABYLON.AnimationGroup("GroupS");
   let animationGroupA = new BABYLON.AnimationGroup("GroupA");
 
@@ -272,6 +338,14 @@ const createScene = () => {
 
       animationGroup = animationGroups;
 
+      console.log(meshes);
+      meshe = meshes;
+      // for (let i = 0; i < meshes.length; i++) {
+      //   if (meshes[i].name.indexOf("Mesh_1_primitive") != -1) {
+      //     meshes[i].material.alpha = 0;
+      //   }
+      // }
+
       // let { min, max } = meshes[0].getHierarchyBoundingVectors();
 
       // meshes[0].setBoundingInfo(new BABYLON.BoundingInfo(min, max));
@@ -279,8 +353,7 @@ const createScene = () => {
       // meshes[0].showBoundingBox = true;
       for (let i = 0; i < animationGroups.length; i++) {
         if (animationGroups[i].name.indexOf("Rotation") != -1) {
-          animationGroups[i].start(true, 1, 1, animationGroups[i].to);
-
+          // animationGroups[i].start(true, 1, 1, animationGroups[i].to);
           // animationGroupA.addTargetedAnimation(
           //   animationGroups[i].targetedAnimations[0].animation,
           //   animationGroups[i].targetedAnimations[0].target
@@ -317,13 +390,21 @@ const createScene = () => {
       //   meshes[i].material = yellowMat;
       // }
       scene.onPointerObservable.add((pointerInfo) => {
-        if (!animationGroups[1].isStarted && !opened && !animationGroupS.isStarted) {
-          for (let i = 0; i < animationGroups.length; i++) {
-            if (animationGroups[i].name.indexOf("Rotation") != -1) {
-              animationGroups[i].start(true, 1, 1, animationGroups[i].to);
-            }
-          }
-        }
+        // for (let i = 0; i < meshes.length; i++) {
+        //   if (meshes[i].name.indexOf("Mesh_1_primitive") != -1) {
+        //     console.log(meshes[i].material.alpha);
+        //     if (meshes[i].material.alpha > 0) {
+        //       meshes[i].material.alpha = meshes[i].material.alpha - 0.01;
+        //     }
+        //   }
+        // }
+        // if (!animationGroups[1].isStarted && !opened && !animationGroupS.isStarted) {
+        //   for (let i = 0; i < animationGroups.length; i++) {
+        //     if (animationGroups[i].name.indexOf("Rotation") != -1) {
+        //       animationGroups[i].start(true, 1, 1, animationGroups[i].to);
+        //     }
+        //   }
+        // }
         // if (!animationGroupA.isStarted && !opened && !animationGroupS.isStarted) {
         //   // for (let i = 0; i < animationGroups.length; i++) {
         //   //   if (animationGroups[i].name.indexOf("Rotation") != -1) {
